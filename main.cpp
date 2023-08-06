@@ -1,91 +1,112 @@
-#include<iostream>
-#include<conio.h>
-#include<string.h>
-#include<process.h>
-using namespace std;
+#include <stdio.h>
+#include <string.h>
 
-class books {
- public:
- int stock;
- char author[20], publisher[20];
- char bookname[20];
- float price;
- void loadbooks();
- void display();
-};
+#define MAX_BOOKS 5
+#define MAX_BOOK_NAME_LENGTH 50
 
-void books::loadbooks() {
- cout<<"\nEnter Book Name:";
- cin>>bookname;
- cout<<"\nEnter Author Name:";
- cin>>author;
- cout<<"\nEnter Publisher Name:";
- cin>>publisher;
- cout<<"\nEnter Price:";
- cin>>price;
- cout<<"\nEnter Stock:";
- cin>>stock;
- cout<<"\n-------------\n";
-}
+// Global variables
+char books[MAX_BOOKS][MAX_BOOK_NAME_LENGTH];
+int numBooks = 0;
 
-void books::display() {
- cout<<"\nName of the Book:"<<bookname;
- cout<<"\nAuthor of the Book:"<<author;
- cout<<"\nPublisher of the Book:"<<publisher;
- cout<<"\nPrice of the Book:"<<price;
- cout<<"\nStock Present:"<<stock;
- cout<<"\n-------------\n";
-}
+// Function prototypes
+void showAvailableBooks();
+void issueBook();
+void returnBook();
 
 int main() {
- books ob[10];
- int ch, n;
+    int choice;
+    
+    // Dummy book names
+    strcpy(books[0], "Book 1");
+    strcpy(books[1], "Book 2");
+    strcpy(books[2], "Book 3");
+    numBooks = 3;
+    
+    do {
+        printf("\nLibrary Management System\n");
+        printf("1. Show available books\n");
+        printf("2. Issue a book\n");
+        printf("3. Return a book\n");
+        printf("0. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
 
- do{
-  cout<<"\n****\n";
-  cout<<"\n1.Load Books\n2.Display\n3.Search\n4.Exit\n";
-  cout<<"\n\nEnter your Choice:";
-  cin>>ch;
-  switch(ch)
-  {
-  case 1: cout<<"Enter Number of Books:";
-   cin>>n;
-   for(int i=0;i<n;i++)
-   ob[i].loadbooks();
-   break;
-  case 2:
-   for(int i=0;i<n;i++)
-   ob[i].display();
-   break;
-  case 3:
-  
-   char bname[20], aname[20];
-   cout<<"Enter name of the Book:";
-   cin>>bname;
-   cout<<"Enter name of the Author:";
-   cin>>aname;
-   for(int i=0;i<n;i++)
-   {
-    if(strcmp(bname, ob[i].bookname)==0&&strcmp(aname,ob[i].author))
-    {
-     cout<<"\nBook Present\n\n";
-     cout<<"\nName of the Book:"<<ob[i].bookname;
-     cout<<"\nAuthor of the Book:"<<ob[i].author;
-     cout<<"\nPublisher of the Book:"<<ob[i].publisher;
-     cout<<"\nPrice of the Book:"<<ob[i].price;
-     cout<<"\nStock Present:"<<ob[i].stock;
-     cout<<"\n-------------\n";
-     break;
+        switch (choice) {
+            case 1:
+                showAvailableBooks();
+                break;
+            case 2:
+                issueBook();
+                break;
+            case 3:
+                returnBook();
+                break;
+            case 0:
+                printf("Exiting the program. Goodbye!\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
+
+void showAvailableBooks() {
+    printf("\nAvailable Books:\n");
+    if (numBooks == 0) {
+        printf("No books available.\n");
+    } else {
+        for (int i = 0; i < numBooks; i++) {
+            printf("%d. %s\n", i + 1, books[i]);
+        }
     }
-    else
-    {
-     cout<<"Not Present!!";
-     break;
+}
+
+void issueBook() {
+    showAvailableBooks();
+    if (numBooks == 0) {
+        printf("No books available to issue.\n");
+        return;
     }
-   }
-   break;
-   default: cout<<"Enter a valid choice!!";
-  case 4: exit(1);
-  }
- }while(1);
+
+    int bookIndex;
+    printf("Enter the book number you want to issue: ");
+    scanf("%d", &bookIndex);
+
+    if (bookIndex < 1 || bookIndex > numBooks) {
+        printf("Invalid book number. Please try again.\n");
+        return;
+    }
+
+    printf("You have issued the book: %s\n", books[bookIndex - 1]);
+
+    // Remove the issued book from the list
+    for (int i = bookIndex - 1; i < numBooks - 1; i++) {
+        strcpy(books[i], books[i + 1]);
+    }
+    numBooks--;
+
+    showAvailableBooks();
+}
+
+void returnBook() {
+    char bookName[MAX_BOOK_NAME_LENGTH];
+    printf("Enter the name of the book you want to return: ");
+    getchar(); // Clear the input buffer before reading the book name
+    fgets(bookName, MAX_BOOK_NAME_LENGTH, stdin);
+
+    // Remove the trailing newline character from the book name
+    bookName[strcspn(bookName, "\n")] = '\0';
+
+    if (numBooks == MAX_BOOKS) {
+        printf("The library is already full. Cannot accept more books.\n");
+        return;
+    }
+
+    strcpy(books[numBooks], bookName);
+    numBooks++;
+
+    printf("You have returned the book: %s\n", bookName);
+    showAvailableBooks();
 }
